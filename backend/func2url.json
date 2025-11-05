@@ -1,7 +1,0 @@
-{
-  "clients-get": "https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc",
-  "portfolio-admin": "https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b",
-  "order-update-status": "https://functions.poehali.dev/1b30405e-8c9f-44e4-b6c7-6a8d3df8a2e8",
-  "orders-get": "https://functions.poehali.dev/df2e7780-9527-410f-8848-48ea6e18479d",
-  "send-order": "https://functions.poehali.dev/f1f77e68-f10f-4dd3-beb4-47bb23587a7c"
-}
