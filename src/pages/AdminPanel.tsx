@@ -351,6 +351,16 @@ export default function AdminPanel() {
     }
   };
 
+  const handleClientDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      handleClientLogoUpload(file);
+    }
+  };
+
   const loadClients = async (adminToken: string) => {
     setClientsLoading(true);
     try {
@@ -589,7 +599,7 @@ export default function AdminPanel() {
           handleImageUpload={handleClientLogoUpload}
           handleDragOver={handleDragOver}
           handleDragLeave={handleDragLeave}
-          handleDrop={handleDrop}
+          handleDrop={handleClientDrop}
         />
       </div>
     </div>
