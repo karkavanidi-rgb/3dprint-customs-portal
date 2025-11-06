@@ -17,7 +17,7 @@ const ClientsSection = ({ t }: ClientsSectionProps) => {
   useEffect(() => {
     const loadClients = async () => {
       try {
-        const response = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1');
+        const response = await fetch('https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc');
         const data = await response.json();
         setClients(data.clients || []);
       } catch (error) {

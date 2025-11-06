@@ -7,33 +7,47 @@ import Icon from '@/components/ui/icon';
 import { ClientItem } from './types';
 
 interface ClientDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  client: Partial<ClientItem>;
-  setClient: (client: Partial<ClientItem>) => void;
-  onSave: () => void;
+  isDialogOpen: boolean;
+  setIsDialogOpen: (open: boolean) => void;
+  editingClient: ClientItem | null;
+  newClient: Partial<ClientItem>;
+  setNewClient: (client: Partial<ClientItem>) => void;
+  saveClient: (client: Partial<ClientItem>) => void;
+  uploadingImage: boolean;
+  isDragging: boolean;
+  handleImageUpload: (file: File) => void;
+  handleDragOver: (e: React.DragEvent) => void;
+  handleDragLeave: (e: React.DragEvent) => void;
+  handleDrop: (e: React.DragEvent) => void;
 }
 
 export default function ClientDialog({
-  isOpen,
-  onClose,
-  client,
-  setClient,
-  onSave
+  isDialogOpen,
+  setIsDialogOpen,
+  editingClient,
+  newClient,
+  setNewClient,
+  saveClient,
+  uploadingImage,
+  isDragging,
+  handleImageUpload,
+  handleDragOver,
+  handleDragLeave,
+  handleDrop
 }: ClientDialogProps) {
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{client.id ? 'Редактировать клиента' : 'Добавить клиента'}</DialogTitle>
+          <DialogTitle>{editingClient ? 'Редактировать клиента' : 'Добавить клиента'}</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Название компании</Label>
             <Input
               id="name"
-              value={client.name || ''}
-              onChange={(e) => setClient({ ...client, name: e.target.value })}
+              value={newClient.name || ''}
+              onChange={(e) => setNewClient({ ...newClient, name: e.target.value })}
               placeholder="Yandex"
             />
           </div>
@@ -41,13 +55,18 @@ export default function ClientDialog({
           <div className="space-y-2">
             <Label>Логотип</Label>
             <div
-              className="border-2 border-dashed rounded-lg p-8 text-center border-gray-300"
+              className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                isDragging ? 'border-primary bg-primary/5' : 'border-gray-300'
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
             >
-              {client.logo_url ? (
+              {newClient.logo_url ? (
                 <div className="space-y-4">
                   <div className="max-h-40 flex items-center justify-center bg-gray-50 rounded p-4">
                     <img 
-                      src={client.logo_url} 
+                      src={newClient.logo_url} 
                       alt="Preview" 
                       className="max-h-32 object-contain"
                     />
@@ -55,7 +74,7 @@ export default function ClientDialog({
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setClient({ ...client, logo_url: '' })}
+                    onClick={() => setNewClient({ ...newClient, logo_url: '' })}
                   >
                     <Icon name="X" size={16} className="mr-2" />
                     Удалить логотип
@@ -72,18 +91,25 @@ export default function ClientDialog({
                     accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
-                      if (file) {
-                        alert('Функция загрузки изображений будет добавлена позже');
-                      }
+                      if (file) handleImageUpload(file);
                     }}
                     className="hidden"
                     id="logo-upload"
                   />
                   <label htmlFor="logo-upload">
-                    <Button variant="outline" size="sm" asChild>
+                    <Button variant="outline" size="sm" disabled={uploadingImage} asChild>
                       <span>
-                        <Icon name="Upload" size={16} className="mr-2" />
-                        Выбрать файл
+                        {uploadingImage ? (
+                          <>
+                            <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                            Загрузка...
+                          </>
+                        ) : (
+                          <>
+                            <Icon name="Upload" size={16} className="mr-2" />
+                            Выбрать файл
+                          </>
+                        )}
                       </span>
                     </Button>
                   </label>
@@ -98,8 +124,8 @@ export default function ClientDialog({
               <Input
                 id="display_order"
                 type="number"
-                value={client.display_order || 0}
-                onChange={(e) => setClient({ ...client, display_order: parseInt(e.target.value) })}
+                value={newClient.display_order || 0}
+                onChange={(e) => setNewClient({ ...newClient, display_order: parseInt(e.target.value) })}
               />
             </div>
 
@@ -108,22 +134,22 @@ export default function ClientDialog({
               <div className="flex items-center space-x-2 h-10">
                 <Switch
                   id="is_visible"
-                  checked={client.is_visible ?? true}
-                  onCheckedChange={(checked) => setClient({ ...client, is_visible: checked })}
+                  checked={newClient.is_visible ?? true}
+                  onCheckedChange={(checked) => setNewClient({ ...newClient, is_visible: checked })}
                 />
                 <Label htmlFor="is_visible" className="cursor-pointer">
-                  {client.is_visible ? 'Виден' : 'Скрыт'}
+                  {newClient.is_visible ? 'Виден' : 'Скрыт'}
                 </Label>
               </div>
             </div>
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button onClick={onSave} className="flex-1">
+            <Button onClick={() => saveClient(newClient)} className="flex-1">
               <Icon name="Save" size={18} className="mr-2" />
               Сохранить
             </Button>
-            <Button variant="outline" onClick={onClose}>
+            <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               Отмена
             </Button>
           </div>

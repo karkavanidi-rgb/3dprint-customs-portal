@@ -5,18 +5,22 @@ import { ClientItem } from './types';
 
 interface ClientsManagementProps {
   clients: ClientItem[];
-  loading: boolean;
-  onEdit: (item: ClientItem) => void;
-  onDelete: (id: number) => void;
-  onAddNew: () => void;
+  clientsLoading: boolean;
+  loadClients: (token: string) => void;
+  setEditingClient: (item: ClientItem | null) => void;
+  setIsDialogOpen: (open: boolean) => void;
+  deleteClient: (id: number) => void;
+  setNewClient: (item: Partial<ClientItem>) => void;
 }
 
 export default function ClientsManagement({
   clients,
-  loading,
-  onEdit,
-  onDelete,
-  onAddNew
+  clientsLoading,
+  loadClients,
+  setEditingClient,
+  setIsDialogOpen,
+  deleteClient,
+  setNewClient
 }: ClientsManagementProps) {
   return (
     <Card>
@@ -27,7 +31,27 @@ export default function ClientsManagement({
             <CardDescription>Добавляйте и редактируйте логотипы клиентов</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button onClick={onAddNew}>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                const adminToken = localStorage.getItem('admin_token');
+                if (adminToken) loadClients(adminToken);
+              }}
+              disabled={clientsLoading}
+            >
+              {clientsLoading ? (
+                <>
+                  <Icon name="Loader2" size={18} className="animate-spin mr-2" />
+                  Загрузка...
+                </>
+              ) : (
+                <>
+                  <Icon name="RefreshCw" size={18} className="mr-2" />
+                  Обновить
+                </>
+              )}
+            </Button>
+            <Button onClick={() => { setEditingClient(null); setIsDialogOpen(true); }}>
               <Icon name="Plus" size={18} className="mr-2" />
               Добавить клиента
             </Button>
@@ -35,7 +59,7 @@ export default function ClientsManagement({
         </div>
       </CardHeader>
       <CardContent>
-        {loading ? (
+        {clientsLoading ? (
           <div className="text-center py-12">
             <Icon name="Loader2" size={48} className="animate-spin mx-auto text-primary" />
             <p className="mt-4 text-gray-600">Загрузка...</p>
@@ -71,7 +95,11 @@ export default function ClientsManagement({
                       variant="outline" 
                       size="sm" 
                       className="flex-1"
-                      onClick={() => onEdit(item)}
+                      onClick={() => {
+                        setEditingClient(item);
+                        setNewClient(item);
+                        setIsDialogOpen(true);
+                      }}
                     >
                       <Icon name="Edit" size={16} className="mr-1" />
                       Изменить
@@ -79,7 +107,7 @@ export default function ClientsManagement({
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => onDelete(item.id)}
+                      onClick={() => deleteClient(item.id)}
                     >
                       <Icon name="Trash2" size={16} />
                     </Button>

@@ -48,7 +48,6 @@ export default function AdminPanel() {
     display_order: 0,
     is_visible: true
   });
-  const [importing, setImporting] = useState(false);
 
   const login = () => {
     if (token.trim()) {
@@ -191,70 +190,21 @@ export default function AdminPanel() {
     if (!adminToken) return;
 
     try {
-      console.log('Начинаем экспорт данных...');
-      
-      let ordersData = { orders: [] };
-      let portfolioData = { portfolio: [] };
-      let clientsData = { clients: [] };
+      const [ordersRes, portfolioRes, clientsRes] = await Promise.all([
+        fetch('https://functions.poehali.dev/df2e7780-9527-410f-8848-48ea6e18479d', {
+          headers: { 'X-Admin-Token': adminToken }
+        }),
+        fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b', {
+          headers: { 'X-Admin-Token': adminToken }
+        }),
+        fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
+          headers: { 'X-Admin-Token': adminToken }
+        })
+      ]);
 
-      try {
-        console.log('Загрузка заявок...');
-        const ordersRes = await fetch('https://functions.poehali.dev/df2e7780-9527-410f-8848-48ea6e18479d', {
-          method: 'GET',
-          headers: { 
-            'X-Admin-Token': adminToken,
-            'Content-Type': 'application/json'
-          }
-        });
-        if (ordersRes.ok) {
-          ordersData = await ordersRes.json();
-          console.log('Заявки загружены:', ordersData);
-        } else {
-          console.warn('Не удалось загрузить заявки:', ordersRes.status);
-        }
-      } catch (err) {
-        console.warn('Ошибка загрузки заявок:', err);
-      }
-
-      try {
-        console.log('Загрузка портфолио...');
-        const portfolioRes = await fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b', {
-          method: 'GET',
-          headers: { 
-            'X-Admin-Token': adminToken,
-            'Content-Type': 'application/json'
-          }
-        });
-        if (portfolioRes.ok) {
-          portfolioData = await portfolioRes.json();
-          console.log('Портфолио загружено:', portfolioData);
-        } else {
-          console.warn('Не удалось загрузить портфолио:', portfolioRes.status);
-        }
-      } catch (err) {
-        console.warn('Ошибка загрузки портфолио:', err);
-      }
-
-      try {
-        console.log('Загрузка клиентов...');
-        const clientsRes = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
-          method: 'GET',
-          headers: { 
-            'X-Admin-Token': adminToken,
-            'Content-Type': 'application/json'
-          }
-        });
-        if (clientsRes.ok) {
-          clientsData = await clientsRes.json();
-          console.log('Клиенты загружены:', clientsData);
-        } else {
-          console.warn('Не удалось загрузить клиентов:', clientsRes.status);
-        }
-      } catch (err) {
-        console.warn('Ошибка загрузки клиентов:', err);
-      }
-
-      console.log('Все данные загружены, создаём экспорт...');
+      const ordersData = await ordersRes.json();
+      const portfolioData = await portfolioRes.json();
+      const clientsData = await clientsRes.json();
 
       const exportData = {
         project_info: {
@@ -305,89 +255,10 @@ export default function AdminPanel() {
       document.body.removeChild(link);
       URL.revokeObjectURL(url);
 
-      console.log('Экспорт успешно завершен!');
       alert('✅ Экспорт завершен! Файл содержит все данные о сайте, функциях и базе данных.');
     } catch (err) {
-      console.error('❌ Ошибка экспорта:', err);
-      alert(`❌ Ошибка при экспорте данных:\n${err instanceof Error ? err.message : String(err)}`);
-    }
-  };
-
-  const importCompleteSite = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    const adminToken = localStorage.getItem('admin_token');
-    if (!adminToken) return;
-
-    setImporting(true);
-
-    try {
-      const text = await file.text();
-      const importData = JSON.parse(text);
-
-      if (!importData.database) {
-        alert('❌ Неверный формат файла');
-        return;
-      }
-
-      const portfolioItems = importData.database.portfolio || [];
-      const clientItems = importData.database.clients || [];
-
-      let successCount = 0;
-      let errorCount = 0;
-
-      for (const item of portfolioItems) {
-        try {
-          const { id, ...itemData } = item;
-          await fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Admin-Token': adminToken
-            },
-            body: JSON.stringify(itemData)
-          });
-          successCount++;
-        } catch (err) {
-          console.error('Ошибка импорта портфолио:', err);
-          errorCount++;
-        }
-      }
-
-      for (const item of clientItems) {
-        try {
-          const { id, ...itemData } = item;
-          await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Admin-Token': adminToken
-            },
-            body: JSON.stringify(itemData)
-          });
-          successCount++;
-        } catch (err) {
-          console.error('Ошибка импорта клиентов:', err);
-          errorCount++;
-        }
-      }
-
-      loadPortfolio(adminToken);
-      loadClients(adminToken);
-
-      if (errorCount === 0) {
-        alert(`✅ Импорт завершен! Импортировано элементов: ${successCount}`);
-      } else {
-        alert(`⚠️ Импорт завершен с ошибками.\nУспешно: ${successCount}\nОшибок: ${errorCount}`);
-      }
-
-      event.target.value = '';
-    } catch (err) {
-      console.error('Ошибка импорта:', err);
-      alert('❌ Ошибка при импорте данных. Проверьте формат файла.');
-    } finally {
-      setImporting(false);
+      console.error('Ошибка экспорта:', err);
+      alert('Ошибка при экспорте данных');
     }
   };
 
@@ -521,7 +392,7 @@ export default function AdminPanel() {
   const loadClients = async (adminToken: string) => {
     setClientsLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
+      const response = await fetch('https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc', {
         method: 'GET',
         headers: {
           'X-Admin-Token': adminToken
@@ -545,7 +416,7 @@ export default function AdminPanel() {
 
     try {
       const method = item.id ? 'PUT' : 'POST';
-      const response = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
+      const response = await fetch('https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc', {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -577,7 +448,7 @@ export default function AdminPanel() {
     if (!confirm('Удалить этого клиента?')) return;
 
     try {
-      const response = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
+      const response = await fetch('https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -671,17 +542,6 @@ export default function AdminPanel() {
               <Icon name="Download" size={18} className="mr-2" />
               Скачать сайт
             </Button>
-            <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()} disabled={importing}>
-              <Icon name={importing ? "Loader2" : "Upload"} size={18} className={`mr-2 ${importing ? 'animate-spin' : ''}`} />
-              {importing ? 'Импорт...' : 'Загрузить сайт'}
-            </Button>
-            <input
-              id="import-file"
-              type="file"
-              accept=".json"
-              onChange={importCompleteSite}
-              className="hidden"
-            />
             <Button variant="outline" onClick={logout}>
               <Icon name="LogOut" size={18} className="mr-2" />
               Выйти
@@ -724,77 +584,56 @@ export default function AdminPanel() {
           <TabsContent value="portfolio" className="space-y-6">
             <PortfolioManagement
               portfolio={portfolio}
-              loading={portfolioLoading}
-              onEdit={(item) => {
-                setEditingItem(item);
-                setNewItem(item);
-                setIsDialogOpen(true);
-              }}
-              onDelete={deletePortfolioItem}
-              onAddNew={() => {
-                setEditingItem(null);
-                setNewItem({
-                  title: '',
-                  description: '',
-                  image_url: '',
-                  display_order: portfolio.length + 1,
-                  is_visible: true
-                });
-                setIsDialogOpen(true);
-              }}
+              portfolioLoading={portfolioLoading}
+              loadPortfolio={loadPortfolio}
+              setEditingItem={setEditingItem}
+              setIsDialogOpen={setIsDialogOpen}
+              deletePortfolioItem={deletePortfolioItem}
+              setNewItem={setNewItem}
             />
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-6">
             <ClientsManagement
               clients={clients}
-              loading={clientsLoading}
-              onEdit={(item) => {
-                setEditingClient(item);
-                setNewClient(item);
-                setIsClientDialogOpen(true);
-              }}
-              onDelete={deleteClient}
-              onAddNew={() => {
-                setEditingClient(null);
-                setNewClient({
-                  name: '',
-                  logo_url: '',
-                  display_order: clients.length + 1,
-                  is_visible: true
-                });
-                setIsClientDialogOpen(true);
-              }}
+              clientsLoading={clientsLoading}
+              loadClients={loadClients}
+              setEditingClient={setEditingClient}
+              setIsDialogOpen={setIsClientDialogOpen}
+              deleteClient={deleteClient}
+              setNewClient={setNewClient}
             />
           </TabsContent>
         </Tabs>
 
         <PortfolioDialog
-          isOpen={isDialogOpen}
-          onClose={() => {
-            setIsDialogOpen(false);
-            setEditingItem(null);
-          }}
-          item={newItem}
-          setItem={setNewItem}
-          onSave={() => savePortfolioItem(newItem)}
+          isDialogOpen={isDialogOpen}
+          setIsDialogOpen={setIsDialogOpen}
+          editingItem={editingItem}
+          newItem={newItem}
+          setNewItem={setNewItem}
+          savePortfolioItem={savePortfolioItem}
           uploadingImage={uploadingImage}
           isDragging={isDragging}
-          onImageUpload={handleImageUpload}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
+          handleImageUpload={handleImageUpload}
+          handleDragOver={handleDragOver}
+          handleDragLeave={handleDragLeave}
+          handleDrop={handleDrop}
         />
 
         <ClientDialog
-          isOpen={isClientDialogOpen}
-          onClose={() => {
-            setIsClientDialogOpen(false);
-            setEditingClient(null);
-          }}
-          client={newClient}
-          setClient={setNewClient}
-          onSave={() => saveClient(newClient)}
+          isDialogOpen={isClientDialogOpen}
+          setIsDialogOpen={setIsClientDialogOpen}
+          editingClient={editingClient}
+          newClient={newClient}
+          setNewClient={setNewClient}
+          saveClient={saveClient}
+          uploadingImage={uploadingImage}
+          isDragging={isDragging}
+          handleImageUpload={handleImageUpload}
+          handleDragOver={handleDragOver}
+          handleDragLeave={handleDragLeave}
+          handleDrop={handleDrop}
         />
       </div>
     </div>
