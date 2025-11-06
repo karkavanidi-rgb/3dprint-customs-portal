@@ -273,7 +273,7 @@ export default function AdminPanel() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('https://functions.poehali.dev/b08b5e90-3265-4ae3-8494-e33f8fdd77c8', {
+      const response = await fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b?upload=true', {
         method: 'POST',
         body: formData
       });
@@ -303,7 +303,7 @@ export default function AdminPanel() {
       const formData = new FormData();
       formData.append('file', file);
 
-      const response = await fetch('https://functions.poehali.dev/b08b5e90-3265-4ae3-8494-e33f8fdd77c8', {
+      const response = await fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b?upload=true', {
         method: 'POST',
         body: formData
       });
