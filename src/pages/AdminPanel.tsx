@@ -521,7 +521,7 @@ export default function AdminPanel() {
   const loadClients = async (adminToken: string) => {
     setClientsLoading(true);
     try {
-      const response = await fetch('https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc', {
+      const response = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
         method: 'GET',
         headers: {
           'X-Admin-Token': adminToken
@@ -545,7 +545,7 @@ export default function AdminPanel() {
 
     try {
       const method = item.id ? 'PUT' : 'POST';
-      const response = await fetch('https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc', {
+      const response = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
         method,
         headers: {
           'Content-Type': 'application/json',
@@ -577,7 +577,7 @@ export default function AdminPanel() {
     if (!confirm('Удалить этого клиента?')) return;
 
     try {
-      const response = await fetch('https://functions.poehali.dev/d584ff33-449c-4abe-8a4e-13cfe9b42ddc', {
+      const response = await fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -724,56 +724,77 @@ export default function AdminPanel() {
           <TabsContent value="portfolio" className="space-y-6">
             <PortfolioManagement
               portfolio={portfolio}
-              portfolioLoading={portfolioLoading}
-              loadPortfolio={loadPortfolio}
-              setEditingItem={setEditingItem}
-              setIsDialogOpen={setIsDialogOpen}
-              deletePortfolioItem={deletePortfolioItem}
-              setNewItem={setNewItem}
+              loading={portfolioLoading}
+              onEdit={(item) => {
+                setEditingItem(item);
+                setNewItem(item);
+                setIsDialogOpen(true);
+              }}
+              onDelete={deletePortfolioItem}
+              onAddNew={() => {
+                setEditingItem(null);
+                setNewItem({
+                  title: '',
+                  description: '',
+                  image_url: '',
+                  display_order: portfolio.length + 1,
+                  is_visible: true
+                });
+                setIsDialogOpen(true);
+              }}
             />
           </TabsContent>
 
           <TabsContent value="clients" className="space-y-6">
             <ClientsManagement
               clients={clients}
-              clientsLoading={clientsLoading}
-              loadClients={loadClients}
-              setEditingClient={setEditingClient}
-              setIsDialogOpen={setIsClientDialogOpen}
-              deleteClient={deleteClient}
-              setNewClient={setNewClient}
+              loading={clientsLoading}
+              onEdit={(item) => {
+                setEditingClient(item);
+                setNewClient(item);
+                setIsClientDialogOpen(true);
+              }}
+              onDelete={deleteClient}
+              onAddNew={() => {
+                setEditingClient(null);
+                setNewClient({
+                  name: '',
+                  logo_url: '',
+                  display_order: clients.length + 1,
+                  is_visible: true
+                });
+                setIsClientDialogOpen(true);
+              }}
             />
           </TabsContent>
         </Tabs>
 
         <PortfolioDialog
-          isDialogOpen={isDialogOpen}
-          setIsDialogOpen={setIsDialogOpen}
-          editingItem={editingItem}
-          newItem={newItem}
-          setNewItem={setNewItem}
-          savePortfolioItem={savePortfolioItem}
+          isOpen={isDialogOpen}
+          onClose={() => {
+            setIsDialogOpen(false);
+            setEditingItem(null);
+          }}
+          item={newItem}
+          setItem={setNewItem}
+          onSave={() => savePortfolioItem(newItem)}
           uploadingImage={uploadingImage}
           isDragging={isDragging}
-          handleImageUpload={handleImageUpload}
-          handleDragOver={handleDragOver}
-          handleDragLeave={handleDragLeave}
-          handleDrop={handleDrop}
+          onImageUpload={handleImageUpload}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
         />
 
         <ClientDialog
-          isDialogOpen={isClientDialogOpen}
-          setIsDialogOpen={setIsClientDialogOpen}
-          editingClient={editingClient}
-          newClient={newClient}
-          setNewClient={setNewClient}
-          saveClient={saveClient}
-          uploadingImage={uploadingImage}
-          isDragging={isDragging}
-          handleImageUpload={handleImageUpload}
-          handleDragOver={handleDragOver}
-          handleDragLeave={handleDragLeave}
-          handleDrop={handleDrop}
+          isOpen={isClientDialogOpen}
+          onClose={() => {
+            setIsClientDialogOpen(false);
+            setEditingClient(null);
+          }}
+          client={newClient}
+          setClient={setNewClient}
+          onSave={() => saveClient(newClient)}
         />
       </div>
     </div>

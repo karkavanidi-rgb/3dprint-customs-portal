@@ -5,22 +5,18 @@ import { PortfolioItem } from './types';
 
 interface PortfolioManagementProps {
   portfolio: PortfolioItem[];
-  portfolioLoading: boolean;
-  loadPortfolio: (token: string) => void;
-  setEditingItem: (item: PortfolioItem | null) => void;
-  setIsDialogOpen: (open: boolean) => void;
-  deletePortfolioItem: (id: number) => void;
-  setNewItem: (item: Partial<PortfolioItem>) => void;
+  loading: boolean;
+  onEdit: (item: PortfolioItem) => void;
+  onDelete: (id: number) => void;
+  onAddNew: () => void;
 }
 
 export default function PortfolioManagement({
   portfolio,
-  portfolioLoading,
-  loadPortfolio,
-  setEditingItem,
-  setIsDialogOpen,
-  deletePortfolioItem,
-  setNewItem
+  loading,
+  onEdit,
+  onDelete,
+  onAddNew
 }: PortfolioManagementProps) {
   return (
     <Card>
@@ -31,27 +27,7 @@ export default function PortfolioManagement({
             <CardDescription>Добавляйте и редактируйте работы в разделе "Наши работы"</CardDescription>
           </div>
           <div className="flex gap-2">
-            <Button 
-              variant="outline"
-              onClick={() => {
-                const adminToken = localStorage.getItem('admin_token');
-                if (adminToken) loadPortfolio(adminToken);
-              }}
-              disabled={portfolioLoading}
-            >
-              {portfolioLoading ? (
-                <>
-                  <Icon name="Loader2" size={18} className="animate-spin mr-2" />
-                  Загрузка...
-                </>
-              ) : (
-                <>
-                  <Icon name="RefreshCw" size={18} className="mr-2" />
-                  Обновить
-                </>
-              )}
-            </Button>
-            <Button onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
+            <Button onClick={onAddNew}>
               <Icon name="Plus" size={18} className="mr-2" />
               Добавить работу
             </Button>
@@ -59,7 +35,7 @@ export default function PortfolioManagement({
         </div>
       </CardHeader>
       <CardContent>
-        {portfolioLoading ? (
+        {loading ? (
           <div className="text-center py-12">
             <Icon name="Loader2" size={48} className="animate-spin mx-auto text-primary" />
             <p className="mt-4 text-gray-600">Загрузка...</p>
@@ -96,11 +72,7 @@ export default function PortfolioManagement({
                       variant="outline" 
                       size="sm" 
                       className="flex-1"
-                      onClick={() => {
-                        setEditingItem(item);
-                        setNewItem(item);
-                        setIsDialogOpen(true);
-                      }}
+                      onClick={() => onEdit(item)}
                     >
                       <Icon name="Edit" size={16} className="mr-1" />
                       Изменить
@@ -108,7 +80,7 @@ export default function PortfolioManagement({
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => deletePortfolioItem(item.id)}
+                      onClick={() => onDelete(item.id)}
                     >
                       <Icon name="Trash2" size={16} />
                     </Button>

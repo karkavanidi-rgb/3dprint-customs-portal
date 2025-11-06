@@ -21,39 +21,37 @@ import Icon from '@/components/ui/icon';
 import { PortfolioItem } from './types';
 
 interface PortfolioDialogProps {
-  isDialogOpen: boolean;
-  setIsDialogOpen: (open: boolean) => void;
-  editingItem: PortfolioItem | null;
-  newItem: Partial<PortfolioItem>;
-  setNewItem: (item: Partial<PortfolioItem>) => void;
-  savePortfolioItem: (item: Partial<PortfolioItem>) => void;
+  isOpen: boolean;
+  onClose: () => void;
+  item: Partial<PortfolioItem>;
+  setItem: (item: Partial<PortfolioItem>) => void;
+  onSave: () => void;
   uploadingImage: boolean;
   isDragging: boolean;
-  handleImageUpload: (file: File) => void;
-  handleDragOver: (e: React.DragEvent) => void;
-  handleDragLeave: (e: React.DragEvent) => void;
-  handleDrop: (e: React.DragEvent) => void;
+  onImageUpload: (file: File) => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: (e: React.DragEvent) => void;
+  onDrop: (e: React.DragEvent) => void;
 }
 
 export default function PortfolioDialog({
-  isDialogOpen,
-  setIsDialogOpen,
-  editingItem,
-  newItem,
-  setNewItem,
-  savePortfolioItem,
+  isOpen,
+  onClose,
+  item,
+  setItem,
+  onSave,
   uploadingImage,
   isDragging,
-  handleImageUpload,
-  handleDragOver,
-  handleDragLeave,
-  handleDrop
+  onImageUpload,
+  onDragOver,
+  onDragLeave,
+  onDrop
 }: PortfolioDialogProps) {
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{editingItem ? 'Редактировать работу' : 'Добавить работу'}</DialogTitle>
+          <DialogTitle>{item.id ? 'Редактировать работу' : 'Добавить работу'}</DialogTitle>
           <DialogDescription>
             Заполните информацию о работе для портфолио
           </DialogDescription>
@@ -63,8 +61,8 @@ export default function PortfolioDialog({
             <Label htmlFor="title">Название работы</Label>
             <Input
               id="title"
-              value={newItem.title}
-              onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+              value={item.title}
+              onChange={(e) => setItem({ ...item, title: e.target.value })}
               placeholder="Например: Архитектурные модели"
             />
           </div>
@@ -72,8 +70,8 @@ export default function PortfolioDialog({
             <Label htmlFor="description">Описание</Label>
             <Textarea
               id="description"
-              value={newItem.description}
-              onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+              value={item.description}
+              onChange={(e) => setItem({ ...item, description: e.target.value })}
               placeholder="Краткое описание работы"
               rows={3}
             />
@@ -83,8 +81,8 @@ export default function PortfolioDialog({
             <div className="flex gap-2">
               <Input
                 id="image_url"
-                value={newItem.image_url}
-                onChange={(e) => setNewItem({ ...newItem, image_url: e.target.value })}
+                value={item.image_url}
+                onChange={(e) => setItem({ ...item, image_url: e.target.value })}
                 placeholder="https://example.com/image.jpg"
                 className="flex-1"
               />
@@ -113,7 +111,7 @@ export default function PortfolioDialog({
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
-                  if (file) handleImageUpload(file);
+                  if (file) onImageUpload(file);
                 }}
               />
             </div>
@@ -121,13 +119,13 @@ export default function PortfolioDialog({
               className={`mt-2 border-2 border-dashed rounded-lg overflow-hidden transition-colors ${
                 isDragging ? 'border-primary bg-primary/5' : 'border-gray-300'
               }`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
             >
-              {newItem.image_url ? (
+              {item.image_url ? (
                 <img 
-                  src={newItem.image_url} 
+                  src={item.image_url} 
                   alt="Предпросмотр"
                   className="w-full h-48 object-cover"
                   onError={(e) => {
@@ -149,15 +147,15 @@ export default function PortfolioDialog({
               <Input
                 id="display_order"
                 type="number"
-                value={newItem.display_order}
-                onChange={(e) => setNewItem({ ...newItem, display_order: parseInt(e.target.value) || 0 })}
+                value={item.display_order}
+                onChange={(e) => setItem({ ...item, display_order: parseInt(e.target.value) || 0 })}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="is_visible">Видимость</Label>
               <Select 
-                value={newItem.is_visible ? 'true' : 'false'}
-                onValueChange={(value) => setNewItem({ ...newItem, is_visible: value === 'true' })}
+                value={item.is_visible ? 'true' : 'false'}
+                onValueChange={(value) => setItem({ ...item, is_visible: value === 'true' })}
               >
                 <SelectTrigger id="is_visible">
                   <SelectValue />
@@ -171,11 +169,11 @@ export default function PortfolioDialog({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
+          <Button variant="outline" onClick={onClose}>
             Отмена
           </Button>
-          <Button onClick={() => savePortfolioItem(editingItem ? { ...newItem, id: editingItem.id } : newItem)}>
-            {editingItem ? 'Сохранить' : 'Добавить'}
+          <Button onClick={onSave}>
+            {item.id ? 'Сохранить' : 'Добавить'}
           </Button>
         </DialogFooter>
       </DialogContent>
