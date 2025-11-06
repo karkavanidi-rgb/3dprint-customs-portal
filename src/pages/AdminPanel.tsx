@@ -299,20 +299,29 @@ export default function AdminPanel() {
     }
 
     setUploadingImage(true);
+    console.log('Начало загрузки логотипа:', file.name, file.type, file.size);
+    
     try {
       const formData = new FormData();
       formData.append('file', file);
 
+      console.log('Отправка запроса на:', 'https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b?upload=true');
+      
       const response = await fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b?upload=true', {
         method: 'POST',
         body: formData
       });
 
+      console.log('Получен ответ:', response.status, response.statusText);
+
       if (response.ok) {
         const data = await response.json();
+        console.log('Данные ответа:', data);
         setNewClient({ ...newClient, logo_url: data.url });
       } else {
-        alert('Ошибка загрузки изображения');
+        const errorText = await response.text();
+        console.error('Ошибка ответа:', response.status, errorText);
+        alert(`Ошибка загрузки изображения: ${response.status}`);
       }
     } catch (err) {
       console.error('Ошибка загрузки:', err);
