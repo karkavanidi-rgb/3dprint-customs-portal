@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "Test order submission",
+      "method": "POST",
+      "path": "/",
+      "body": {
+        "length": "100",
+        "width": "50",
+        "height": "30",
+        "plastic": "pla",
+        "color": "white",
+        "infill": "20",
+        "quantity": "1",
+        "customerType": "individual",
+        "email": "test@example.com",
+        "phone": "+7 999 123-45-67",
+        "description": "Test order"
+      },
+      "expectedStatus": 200,
+      "expectedBody": {
+        "success": true,
+        "orderNumber": "string"
+      },
+      "bodyMatcher": "partial"
+    }
+  ]
+}
