@@ -185,83 +185,6 @@ export default function AdminPanel() {
     XLSX.writeFile(workbook, fileName);
   };
 
-  const exportCompleteSite = async () => {
-    const adminToken = localStorage.getItem('admin_token');
-    if (!adminToken) return;
-
-    try {
-      const [ordersRes, portfolioRes, clientsRes] = await Promise.all([
-        fetch('https://functions.poehali.dev/df2e7780-9527-410f-8848-48ea6e18479d', {
-          headers: { 'X-Admin-Token': adminToken }
-        }),
-        fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b', {
-          headers: { 'X-Admin-Token': adminToken }
-        }),
-        fetch('https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', {
-          headers: { 'X-Admin-Token': adminToken }
-        })
-      ]);
-
-      const ordersData = await ordersRes.json();
-      const portfolioData = await portfolioRes.json();
-      const clientsData = await clientsRes.json();
-
-      const exportData = {
-        project_info: {
-          name: '3D Print Service',
-          export_date: new Date().toISOString(),
-          platform: 'poehali.dev',
-          domain: window.location.hostname
-        },
-        tech_stack: {
-          frontend: 'React + TypeScript + Vite + Tailwind CSS',
-          backend: 'Python 3.11 Cloud Functions',
-          database: 'PostgreSQL',
-          ui_library: 'shadcn/ui'
-        },
-        backend_functions: [
-          { name: 'orders-get', url: 'https://functions.poehali.dev/df2e7780-9527-410f-8848-48ea6e18479d', description: 'Управление заявками' },
-          { name: 'send-order', url: 'https://functions.poehali.dev/4e39cc6e-4dca-4b45-9636-bf45d5c74b3f', description: 'Создание новой заявки' },
-          { name: 'order-update-status', url: 'https://functions.poehali.dev/1b30405e-8c9f-44e4-b6c7-6a8d3df8a2e8', description: 'Обновление статуса заявки' },
-          { name: 'portfolio-admin', url: 'https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b', description: 'Управление портфолио' },
-          { name: 'clients-get', url: 'https://functions.poehali.dev/e9de2896-8e7d-4fc8-aaa0-e00876a2f5b1', description: 'Управление клиентами' }
-        ],
-        database: {
-          orders: ordersData.orders || [],
-          portfolio: portfolioData.portfolio || [],
-          clients: clientsData.clients || []
-        },
-        secrets: {
-          note: 'Значения секретов не экспортируются по соображениям безопасности. Указаны только названия.',
-          required: [
-            'DATABASE_URL - строка подключения к PostgreSQL',
-            'ADMIN_TOKEN - токен доступа к админ-панели'
-          ]
-        },
-        instructions: {
-          deployment: 'Проект развернут на платформе poehali.dev',
-          github_integration: 'Для получения исходного кода подключите GitHub через кнопку "Скачать → Подключить GitHub"',
-          build_download: 'Для скачивания статической версии сайта используйте "Скачать → Скачать билд"'
-        }
-      };
-
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `3DPrint_Complete_Export_${new Date().toLocaleDateString('ru-RU').replace(/\./g, '-')}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      alert('✅ Экспорт завершен! Файл содержит все данные о сайте, функциях и базе данных.');
-    } catch (err) {
-      console.error('Ошибка экспорта:', err);
-      alert('Ошибка при экспорте данных');
-    }
-  };
-
   const loadPortfolio = async (adminToken: string) => {
     setPortfolioLoading(true);
     try {
@@ -537,16 +460,10 @@ export default function AdminPanel() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Панель администратора</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={exportCompleteSite}>
-              <Icon name="Download" size={18} className="mr-2" />
-              Скачать сайт
-            </Button>
-            <Button variant="outline" onClick={logout}>
-              <Icon name="LogOut" size={18} className="mr-2" />
-              Выйти
-            </Button>
-          </div>
+          <Button variant="outline" onClick={logout}>
+            <Icon name="LogOut" size={18} className="mr-2" />
+            Выйти
+          </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
