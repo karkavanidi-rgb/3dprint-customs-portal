@@ -292,6 +292,36 @@ export default function AdminPanel() {
     }
   };
 
+  const handleClientLogoUpload = async (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      alert('Пожалуйста, выберите изображение');
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('https://functions.poehali.dev/b08b5e90-3265-4ae3-8494-e33f8fdd77c8', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNewClient({ ...newClient, logo_url: data.url });
+      } else {
+        alert('Ошибка загрузки изображения');
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки:', err);
+      alert('Ошибка загрузки изображения');
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -547,7 +577,7 @@ export default function AdminPanel() {
           saveClient={saveClient}
           uploadingImage={uploadingImage}
           isDragging={isDragging}
-          handleImageUpload={handleImageUpload}
+          handleImageUpload={handleClientLogoUpload}
           handleDragOver={handleDragOver}
           handleDragLeave={handleDragLeave}
           handleDrop={handleDrop}
