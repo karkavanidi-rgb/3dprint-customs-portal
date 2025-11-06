@@ -269,25 +269,32 @@ export default function AdminPanel() {
     }
 
     setUploadingImage(true);
+    
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      const response = await fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b?upload=true', {
-        method: 'POST',
-        body: formData
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setNewItem({ ...newItem, image_url: data.url });
-      } else {
-        alert('Ошибка загрузки изображения');
-      }
+      // Читаем файл как base64
+      const reader = new FileReader();
+      
+      reader.onload = async (e) => {
+        try {
+          const dataUrl = e.target?.result as string;
+          setNewItem({ ...newItem, image_url: dataUrl });
+          setUploadingImage(false);
+        } catch (err) {
+          console.error('Ошибка обработки:', err);
+          alert('Ошибка обработки изображения');
+          setUploadingImage(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        alert('Ошибка чтения файла');
+        setUploadingImage(false);
+      };
+      
+      reader.readAsDataURL(file);
     } catch (err) {
       console.error('Ошибка загрузки:', err);
       alert('Ошибка загрузки изображения');
-    } finally {
       setUploadingImage(false);
     }
   };
@@ -299,34 +306,32 @@ export default function AdminPanel() {
     }
 
     setUploadingImage(true);
-    console.log('Начало загрузки логотипа:', file.name, file.type, file.size);
     
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-
-      console.log('Отправка запроса на:', 'https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b?upload=true');
+      // Читаем файл как base64
+      const reader = new FileReader();
       
-      const response = await fetch('https://functions.poehali.dev/62b66f50-3759-4932-8376-7ae44620797b?upload=true', {
-        method: 'POST',
-        body: formData
-      });
-
-      console.log('Получен ответ:', response.status, response.statusText);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Данные ответа:', data);
-        setNewClient({ ...newClient, logo_url: data.url });
-      } else {
-        const errorText = await response.text();
-        console.error('Ошибка ответа:', response.status, errorText);
-        alert(`Ошибка загрузки изображения: ${response.status}`);
-      }
+      reader.onload = async (e) => {
+        try {
+          const dataUrl = e.target?.result as string;
+          setNewClient({ ...newClient, logo_url: dataUrl });
+          setUploadingImage(false);
+        } catch (err) {
+          console.error('Ошибка обработки:', err);
+          alert('Ошибка обработки изображения');
+          setUploadingImage(false);
+        }
+      };
+      
+      reader.onerror = () => {
+        alert('Ошибка чтения файла');
+        setUploadingImage(false);
+      };
+      
+      reader.readAsDataURL(file);
     } catch (err) {
       console.error('Ошибка загрузки:', err);
       alert('Ошибка загрузки изображения');
-    } finally {
       setUploadingImage(false);
     }
   };
