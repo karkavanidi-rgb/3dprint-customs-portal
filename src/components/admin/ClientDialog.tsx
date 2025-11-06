@@ -86,6 +86,24 @@ export default function ClientDialog({
                   <p className="text-sm text-gray-600 mb-4">
                     Перетащите изображение сюда или нажмите для выбора
                   </p>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    disabled={uploadingImage}
+                    onClick={() => document.getElementById('logo-upload-input')?.click()}
+                  >
+                    {uploadingImage ? (
+                      <>
+                        <Icon name="Loader2" size={16} className="animate-spin mr-2" />
+                        Загрузка...
+                      </>
+                    ) : (
+                      <>
+                        <Icon name="Upload" size={16} className="mr-2" />
+                        Выбрать файл
+                      </>
+                    )}
+                  </Button>
                   <input
                     type="file"
                     accept="image/*"
@@ -94,25 +112,8 @@ export default function ClientDialog({
                       if (file) handleImageUpload(file);
                     }}
                     className="hidden"
-                    id="logo-upload"
+                    id="logo-upload-input"
                   />
-                  <label htmlFor="logo-upload">
-                    <Button variant="outline" size="sm" disabled={uploadingImage} asChild>
-                      <span>
-                        {uploadingImage ? (
-                          <>
-                            <Icon name="Loader2" size={16} className="animate-spin mr-2" />
-                            Загрузка...
-                          </>
-                        ) : (
-                          <>
-                            <Icon name="Upload" size={16} className="mr-2" />
-                            Выбрать файл
-                          </>
-                        )}
-                      </span>
-                    </Button>
-                  </label>
                 </>
               )}
             </div>
