@@ -9,6 +9,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     Args: event - dict с httpMethod, body, headers
           context - объект с request_id
     Returns: JSON список клиентов или результат операции
+    Updated: 2025-01-06 - Force redeploy to get new URL
     '''
     method: str = event.get('httpMethod', 'GET')
     
