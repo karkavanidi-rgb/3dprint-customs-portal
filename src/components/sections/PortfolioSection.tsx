@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Icon from '@/components/ui/icon';
 
 interface PortfolioSectionProps {
@@ -70,11 +69,6 @@ const PortfolioSection = ({ t }: PortfolioSectionProps) => {
                 <CardTitle className="text-2xl">{item.title}</CardTitle>
                 <CardDescription className="text-base">{item.description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <Button variant="outline" className="w-full">
-                  {t.portfolio.detailsBtn}
-                </Button>
-              </CardContent>
             </Card>
           ))}
         </div>
