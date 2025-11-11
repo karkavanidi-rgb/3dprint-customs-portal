@@ -507,6 +507,12 @@ export default function AdminPanel() {
   }, []);
 
   useEffect(() => {
+    if (isAuthenticated && activeTab === 'orders') {
+      const adminToken = localStorage.getItem('admin_token');
+      if (adminToken) {
+        loadOrders(adminToken);
+      }
+    }
     if (isAuthenticated && activeTab === 'portfolio') {
       const adminToken = localStorage.getItem('admin_token');
       if (adminToken) {
