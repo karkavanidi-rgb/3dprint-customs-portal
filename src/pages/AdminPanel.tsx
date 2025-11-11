@@ -16,6 +16,8 @@ import ClientDialog from '@/components/admin/ClientDialog';
 export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [token, setToken] = useState('');
+  const [password, setPassword] = useState('');
+  const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('orders');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -50,16 +52,27 @@ export default function AdminPanel() {
   });
 
   const login = () => {
+    setLoginError('');
+    const correctPassword = 'QWERTY987654321ZAQWSX';
+    
+    if (password !== correctPassword) {
+      setLoginError('Неверный пароль');
+      return;
+    }
+    
     const testToken = 'demo_token_123';
     localStorage.setItem('admin_token', testToken);
     setIsAuthenticated(true);
     setToken(testToken);
+    setPassword('');
   };
 
   const logout = () => {
     localStorage.removeItem('admin_token');
     setIsAuthenticated(false);
     setToken('');
+    setPassword('');
+    setLoginError('');
     setOrders([]);
   };
 
@@ -470,19 +483,22 @@ export default function AdminPanel() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle className="text-2xl text-center">Админ-панель 3DPC</CardTitle>
-            <p className="text-sm text-gray-500 text-center mt-2">Введите любой текст для входа (демо-режим)</p>
+            <p className="text-sm text-gray-500 text-center mt-2">Введите пароль для доступа</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="token">Пароль</Label>
+              <Label htmlFor="password">Пароль</Label>
               <Input
-                id="token"
+                id="password"
                 type="password"
-                placeholder="Введите любой пароль"
-                value={token}
-                onChange={(e) => setToken(e.target.value)}
+                placeholder="Введите пароль"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && login()}
               />
+              {loginError && (
+                <p className="text-sm text-red-600">{loginError}</p>
+              )}
             </div>
             <Button onClick={login} className="w-full">
               Войти
