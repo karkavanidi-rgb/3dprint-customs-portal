@@ -26,7 +26,7 @@ const ClientsSection = ({ t }: ClientsSectionProps) => {
           {
             id: 7,
             name: '3DPC',
-            logo_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/ae5e866e-6d6a-4beb-9ddf-36fe9c1e46f0.png',
+            logo_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/0c76548d-09ba-4a01-9a55-19d2365fd092.jpg',
             display_order: 1
           }
         ]);
