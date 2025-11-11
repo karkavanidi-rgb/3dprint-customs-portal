@@ -19,6 +19,12 @@ export default function AdminPanel() {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [activeTab, setActiveTab] = useState('orders');
+  const [showPasswordChange, setShowPasswordChange] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -53,9 +59,9 @@ export default function AdminPanel() {
 
   const login = () => {
     setLoginError('');
-    const correctPassword = 'QWERTY987654321ZAQWSX';
+    const savedPassword = localStorage.getItem('admin_password') || 'QWERTY987654321ZAQWSX';
     
-    if (password !== correctPassword) {
+    if (password !== savedPassword) {
       setLoginError('Неверный пароль');
       return;
     }
@@ -74,6 +80,39 @@ export default function AdminPanel() {
     setPassword('');
     setLoginError('');
     setOrders([]);
+  };
+
+  const changePassword = () => {
+    setPasswordError('');
+    setPasswordSuccess('');
+    
+    const savedPassword = localStorage.getItem('admin_password') || 'QWERTY987654321ZAQWSX';
+    
+    if (currentPassword !== savedPassword) {
+      setPasswordError('Текущий пароль неверный');
+      return;
+    }
+    
+    if (newPassword.length < 8) {
+      setPasswordError('Новый пароль должен быть не менее 8 символов');
+      return;
+    }
+    
+    if (newPassword !== confirmPassword) {
+      setPasswordError('Пароли не совпадают');
+      return;
+    }
+    
+    localStorage.setItem('admin_password', newPassword);
+    setPasswordSuccess('Пароль успешно изменен!');
+    setCurrentPassword('');
+    setNewPassword('');
+    setConfirmPassword('');
+    
+    setTimeout(() => {
+      setShowPasswordChange(false);
+      setPasswordSuccess('');
+    }, 2000);
   };
 
   const loadOrders = async (adminToken: string) => {
@@ -514,10 +553,16 @@ export default function AdminPanel() {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold">Панель администратора</h1>
-          <Button variant="outline" onClick={logout}>
-            <Icon name="LogOut" size={18} className="mr-2" />
-            Выйти
-          </Button>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={() => setShowPasswordChange(true)}>
+              <Icon name="Key" size={18} className="mr-2" />
+              Сменить пароль
+            </Button>
+            <Button variant="outline" onClick={logout}>
+              <Icon name="LogOut" size={18} className="mr-2" />
+              Выйти
+            </Button>
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -606,6 +651,71 @@ export default function AdminPanel() {
           handleDragLeave={handleDragLeave}
           handleDrop={handleClientDrop}
         />
+
+        {showPasswordChange && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+            <Card className="w-full max-w-md">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  Смена пароля
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowPasswordChange(false);
+                      setCurrentPassword('');
+                      setNewPassword('');
+                      setConfirmPassword('');
+                      setPasswordError('');
+                      setPasswordSuccess('');
+                    }}
+                  >
+                    <Icon name="X" size={20} />
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="current-password">Текущий пароль</Label>
+                  <Input
+                    id="current-password"
+                    type="password"
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="new-password">Новый пароль</Label>
+                  <Input
+                    id="new-password"
+                    type="password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="confirm-password">Повторите новый пароль</Label>
+                  <Input
+                    id="confirm-password"
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && changePassword()}
+                  />
+                </div>
+                {passwordError && (
+                  <p className="text-sm text-red-600">{passwordError}</p>
+                )}
+                {passwordSuccess && (
+                  <p className="text-sm text-green-600">{passwordSuccess}</p>
+                )}
+                <Button onClick={changePassword} className="w-full">
+                  Сменить пароль
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
