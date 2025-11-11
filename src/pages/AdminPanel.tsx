@@ -50,11 +50,10 @@ export default function AdminPanel() {
   });
 
   const login = () => {
-    if (token.trim()) {
-      localStorage.setItem('admin_token', token);
-      setIsAuthenticated(true);
-      loadOrders(token);
-    }
+    const testToken = 'demo_token_123';
+    localStorage.setItem('admin_token', testToken);
+    setIsAuthenticated(true);
+    setToken(testToken);
   };
 
   const logout = () => {
@@ -447,7 +446,6 @@ export default function AdminPanel() {
     if (savedToken) {
       setToken(savedToken);
       setIsAuthenticated(true);
-      loadOrders(savedToken);
     }
   }, []);
 
@@ -471,37 +469,23 @@ export default function AdminPanel() {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle className="text-2xl text-center">Админ-панель</CardTitle>
+            <CardTitle className="text-2xl text-center">Админ-панель 3DPC</CardTitle>
+            <p className="text-sm text-gray-500 text-center mt-2">Введите любой текст для входа (демо-режим)</p>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="token">Токен доступа</Label>
+              <Label htmlFor="token">Пароль</Label>
               <Input
                 id="token"
                 type="password"
-                placeholder="Введите токен администратора"
+                placeholder="Введите любой пароль"
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && login()}
               />
             </div>
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-sm text-red-600 flex items-center gap-2">
-                  <Icon name="AlertCircle" size={16} />
-                  {error}
-                </p>
-              </div>
-            )}
-            <Button onClick={login} className="w-full" disabled={loading}>
-              {loading ? (
-                <>
-                  <Icon name="Loader2" size={18} className="animate-spin mr-2" />
-                  Проверка токена...
-                </>
-              ) : (
-                'Войти'
-              )}
+            <Button onClick={login} className="w-full">
+              Войти
             </Button>
           </CardContent>
         </Card>
