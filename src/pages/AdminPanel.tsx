@@ -66,10 +66,10 @@ export default function AdminPanel() {
       return;
     }
     
-    const testToken = 'demo_token_123';
-    localStorage.setItem('admin_token', testToken);
+    const adminToken = 'a8f3K9mP2xR7qL5nB4vC6wE1sH0jT3yU8zG2d';
+    localStorage.setItem('admin_token', adminToken);
     setIsAuthenticated(true);
-    setToken(testToken);
+    setToken(adminToken);
     setPassword('');
   };
 
