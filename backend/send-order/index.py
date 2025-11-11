@@ -124,9 +124,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     smtp_port = 587
     smtp_user_short = os.environ.get('SMTP_USER_SHORT', 'zakaz')
     smtp_user = smtp_user_short if '@' in smtp_user_short else f'{smtp_user_short}@3dprintcustom.ru'
-    smtp_password = 'rS9aF7pO6shV3lQ0'
+    smtp_password = os.environ.get('SMTP_PASSWORD_NEW', os.environ.get('SMTP_PASSWORD'))
     
-
+    print(f"🔑 SMTP config: server={smtp_server}, port={smtp_port}, user={smtp_user}, password={'***set***' if smtp_password else 'NOT SET'}")
     
     if not smtp_user or not smtp_password:
         print("⚠️ SMTP not configured - saving order data only")
@@ -223,32 +223,40 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     
     for port in ports_to_try:
         try:
-            print(f"Trying SMTP: {smtp_server}:{port}")
+            print(f"🔌 Trying SMTP: {smtp_server}:{port}")
             
             if port == 465:
-                print("Using SSL connection (port 465)")
-                with smtplib.SMTP_SSL(smtp_server, port) as server:
-                    print("Logging in...")
+                print("🔒 Using SSL connection (port 465)")
+                with smtplib.SMTP_SSL(smtp_server, port, timeout=15) as server:
+                    server.set_debuglevel(1)
+                    print("🔑 Logging in...")
                     server.login(smtp_user, smtp_password)
-                    print("Sending emails...")
+                    print("📧 Sending emails...")
                     server.send_message(msg_company)
                     server.send_message(msg_client)
                     print(f"✅ Success with port {port}!")
                     break
             else:
-                print(f"Using STARTTLS connection (port {port})")
-                with smtplib.SMTP(smtp_server, port, timeout=10) as server:
-                    server.starttls()
-                    print("Logging in...")
+                print(f"🔓 Using STARTTLS connection (port {port})")
+                with smtplib.SMTP(smtp_server, port, timeout=15) as server:
+                    server.set_debuglevel(1)
+                    server.ehlo()
+                    if server.has_extn('STARTTLS'):
+                        print("🔐 Starting TLS...")
+                        server.starttls()
+                        server.ehlo()
+                    print("🔑 Logging in...")
                     server.login(smtp_user, smtp_password)
-                    print("Sending emails...")
+                    print("📧 Sending emails...")
                     server.send_message(msg_company)
                     server.send_message(msg_client)
                     print(f"✅ Success with port {port}!")
                     break
-        except (smtplib.SMTPException, OSError) as e:
+        except (smtplib.SMTPException, OSError, Exception) as e:
             last_error = e
             print(f"❌ Port {port} failed: {type(e).__name__}: {str(e)}")
+            import traceback
+            traceback.print_exc()
             continue
     else:
         print(f"All ports failed. Last error: {last_error}")
