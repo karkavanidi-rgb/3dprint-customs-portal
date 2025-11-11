@@ -165,13 +165,13 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         if is_admin:
             cursor.execute('''
                 SELECT id, title, description, image_url, display_order, is_visible, created_at, updated_at
-                FROM portfolio
+                FROM t_p54189513_3dprint_customs_port.portfolio
                 ORDER BY display_order ASC, created_at DESC
             ''')
         else:
             cursor.execute('''
                 SELECT id, title, description, image_url, display_order, is_visible
-                FROM portfolio
+                FROM t_p54189513_3dprint_customs_port.portfolio
                 WHERE is_visible = true
                 ORDER BY display_order ASC
             ''')
@@ -224,7 +224,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cursor.execute('''
-            INSERT INTO portfolio (title, description, image_url, display_order, is_visible)
+            INSERT INTO t_p54189513_3dprint_customs_port.portfolio (title, description, image_url, display_order, is_visible)
             VALUES (%s, %s, %s, %s, %s)
             RETURNING id
         ''', (title, description, image_url, display_order, is_visible))
@@ -267,7 +267,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
             }
         
         cursor.execute('''
-            UPDATE portfolio 
+            UPDATE t_p54189513_3dprint_customs_port.portfolio 
             SET title = COALESCE(%s, title),
                 description = COALESCE(%s, description),
                 image_url = COALESCE(%s, image_url),
@@ -319,7 +319,7 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
                 'body': json.dumps({'error': 'ID is required'})
             }
         
-        cursor.execute('DELETE FROM portfolio WHERE id = %s RETURNING id', (item_id,))
+        cursor.execute('DELETE FROM t_p54189513_3dprint_customs_port.portfolio WHERE id = %s RETURNING id', (item_id,))
         result = cursor.fetchone()
         conn.commit()
         cursor.close()
