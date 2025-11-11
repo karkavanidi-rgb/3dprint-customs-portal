@@ -28,6 +28,9 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
     headers = event.get('headers', {})
     admin_token = headers.get('x-admin-token') or headers.get('X-Admin-Token')
     
+    print(f"🔑 Received token: {admin_token}")
+    print(f"📋 Method: {method}")
+    
     if not admin_token or admin_token != 'a8f3K9mP2xR7qL5nB4vC6wE1sH0jT3yU8zG2d':
         return {
             'statusCode': 401,
@@ -71,6 +74,8 @@ def handler(event: Dict[str, Any], context: Any) -> Dict[str, Any]:
         
         cursor.close()
         conn.close()
+        
+        print(f"✅ Returning {len(orders)} orders")
         
         return {
             'statusCode': 200,

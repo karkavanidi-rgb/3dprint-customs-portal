@@ -116,6 +116,7 @@ export default function AdminPanel() {
   };
 
   const loadOrders = async (adminToken: string) => {
+    console.log('📥 Loading orders with token:', adminToken);
     setLoading(true);
     setError('');
     
@@ -126,6 +127,8 @@ export default function AdminPanel() {
           'X-Admin-Token': adminToken
         }
       });
+
+      console.log('📡 Response status:', response.status);
 
       if (response.status === 401) {
         setError('Неверный токен доступа. Проверьте правильность введённого токена.');
@@ -140,10 +143,12 @@ export default function AdminPanel() {
       }
 
       const data = await response.json();
+      console.log('📦 Received data:', data);
+      console.log('📋 Orders count:', data.orders?.length || 0);
       setOrders(data.orders || []);
     } catch (err) {
       setError('Ошибка загрузки заявок. Проверьте подключение к интернету.');
-      console.error('Orders fetch error:', err);
+      console.error('❌ Orders fetch error:', err);
       setIsAuthenticated(false);
     } finally {
       setLoading(false);
