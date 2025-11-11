@@ -26,6 +26,56 @@ const PortfolioSection = ({ t }: PortfolioSectionProps) => {
       setPortfolioItems(data.portfolio || []);
     } catch (error) {
       console.error('Ошибка загрузки портфолио:', error);
+      setPortfolioItems([
+        {
+          id: 1,
+          title: 'Архитектурные модели',
+          description: 'Прототипы зданий и сооружений',
+          image_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/c9bfcd24-ae58-41ef-bd0a-90e33c1b3557.jpg',
+          display_order: 1,
+          is_visible: true
+        },
+        {
+          id: 2,
+          title: 'Промышленные детали',
+          description: 'Функциональные запчасти и механизмы',
+          image_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/7d9a3f81-b582-4b41-9ffe-af9e56d32cd0.jpg',
+          display_order: 2,
+          is_visible: true
+        },
+        {
+          id: 3,
+          title: 'Дизайнерские изделия',
+          description: 'Уникальные декоративные элементы',
+          image_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/0f9e8dda-0c61-4b9d-aff4-8b6c99f882a0.jpg',
+          display_order: 3,
+          is_visible: true
+        },
+        {
+          id: 4,
+          title: 'Цветная печать',
+          description: 'Многоцветные изделия высокой детализации',
+          image_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/6ec8f6c5-a3f6-46f7-a935-9871ac02c7b3.jpg',
+          display_order: 4,
+          is_visible: true
+        },
+        {
+          id: 5,
+          title: 'Формы для литья',
+          description: 'Мастер-модели для производства',
+          image_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/4f73c864-e09e-43f4-9b5f-55fe37a69e59.jpg',
+          display_order: 5,
+          is_visible: true
+        },
+        {
+          id: 6,
+          title: 'Постобработка деталей',
+          description: 'Шлифовка, покраска и сборка',
+          image_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/a1e4c71a-dc9f-4c5d-82b7-66f93bc7d48a.jpg',
+          display_order: 6,
+          is_visible: true
+        }
+      ]);
     } finally {
       setLoading(false);
     }

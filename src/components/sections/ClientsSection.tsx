@@ -22,6 +22,14 @@ const ClientsSection = ({ t }: ClientsSectionProps) => {
         setClients(data.clients || []);
       } catch (error) {
         console.error('Ошибка загрузки клиентов:', error);
+        setClients([
+          {
+            id: 7,
+            name: '3DPC',
+            logo_url: 'https://cdn.poehali.dev/projects/cde2bfc9-e8bf-4329-aed0-a822a287b9dd/files/ae5e866e-6d6a-4beb-9ddf-36fe9c1e46f0.png',
+            display_order: 1
+          }
+        ]);
       }
     };
     loadClients();
