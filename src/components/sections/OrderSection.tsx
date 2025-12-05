@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import Icon from '@/components/ui/icon';
 
 interface OrderSectionProps {
@@ -20,6 +21,8 @@ const OrderSection = ({ t, handleFormSubmit, isSubmitting = false }: OrderSectio
   const [fileError, setFileError] = useState<string>('');
   const [plastic, setPlastic] = useState<string>('');
   const [color, setColor] = useState<string>('');
+  const [privacyAccepted, setPrivacyAccepted] = useState<boolean>(false);
+  const [agreementAccepted, setAgreementAccepted] = useState<boolean>(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -225,7 +228,55 @@ const OrderSection = ({ t, handleFormSubmit, isSubmitting = false }: OrderSectio
                 <Input id="contact-phone" name="phone" type="tel" placeholder="+7 (999) 123-45-67" />
               </div>
               
-              <Button type="submit" size="lg" className="w-full text-lg py-6" disabled={isSubmitting}>
+              <div className="space-y-4 pt-4 border-t">
+                <div className="flex items-start space-x-3">
+                  <Checkbox 
+                    id="privacy-policy" 
+                    checked={privacyAccepted}
+                    onCheckedChange={(checked) => setPrivacyAccepted(checked as boolean)}
+                    required
+                  />
+                  <label htmlFor="privacy-policy" className="text-sm text-gray-700 leading-relaxed cursor-pointer">
+                    Я даю согласие на{' '}
+                    <a 
+                      href="/privacy-policy.html" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline font-medium"
+                    >
+                      обработку персональных данных
+                    </a>
+                    {' '}в соответствии с Федеральным законом № 152-ФЗ
+                  </label>
+                </div>
+                
+                <div className="flex items-start space-x-3">
+                  <Checkbox 
+                    id="service-agreement" 
+                    checked={agreementAccepted}
+                    onCheckedChange={(checked) => setAgreementAccepted(checked as boolean)}
+                    required
+                  />
+                  <label htmlFor="service-agreement" className="text-sm text-gray-700 leading-relaxed cursor-pointer">
+                    Я принимаю условия{' '}
+                    <a 
+                      href="/service-agreement.html" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:text-blue-800 underline font-medium"
+                    >
+                      договора оказания услуг
+                    </a>
+                  </label>
+                </div>
+              </div>
+              
+              <Button 
+                type="submit" 
+                size="lg" 
+                className="w-full text-lg py-6" 
+                disabled={isSubmitting || !privacyAccepted || !agreementAccepted}
+              >
                 {isSubmitting ? (
                   <>
                     <Icon name="Loader2" className="mr-2 animate-spin" size={20} />
